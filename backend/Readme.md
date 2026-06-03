@@ -1,92 +1,175 @@
 # UniBlox E-Commerce Backend
 
-Hey there! 👋 I built this e-commerce backend with Express and TypeScript. It's designed to be both powerful and easy to understand, handling everything from shopping carts to automatic discounts.
+Express and TypeScript backend for the UniBlox ecommerce discount-code demo. It provides product, cart, checkout, and admin coupon APIs.
 
-## Project Overview
-
-Here's how I organized everything:
+## Current Folder Structure
 
 ```text
 backend/
 ├── src/
-│   ├── controllers/      # Brain of the application
-│   │   ├── cart.controller.ts      # Shopping cart logic
-│   │   ├── checkout.controller.ts  # Payment and discounts
-│   │   └── product.controller.ts   # Product management
-│   │
-│   ├── routes/          # API endpoints
-│   │   ├── cart.routes.ts
-│   │   ├── checkout.routes.ts
-│   │   ├── product.routes.ts
-│   │   └── index.ts     # Routes hub
-│   │
+│   ├── controllers/
+│   │   ├── admin.controller.ts     # Admin stats and coupon generation
+│   │   ├── cart.controller.ts      # Add-to-cart and cart retrieval
+│   │   ├── checkout.controller.ts  # Checkout and coupon validation
+│   │   └── product.controller.ts   # Product listing
+│   ├── routes/
+│   │   ├── admin.routes.ts         # /api/admin endpoints
+│   │   ├── cart.routes.ts          # /api/cart endpoints
+│   │   ├── checkout.routes.ts      # /api/checkout endpoint
+│   │   ├── index.ts                # Main API route aggregator
+│   │   └── product.routes.ts       # /api/products endpoint
 │   ├── stores/
-│   │   └── db.ts       # Data management
-│   │
-│   ├── app.ts         # Express setup
-│   └── server.ts      # Server startup
+│   │   └── db.ts                   # In-memory products, carts, orders, stats, coupons
+│   ├── app.ts                      # Express app setup, middleware, routes
+│   └── server.ts                   # Server startup on PORT or 5000
+├── dist/                           # Compiled JavaScript output from npm run build
+├── package.json                    # Scripts and dependencies
+├── package-lock.json               # Locked dependency versions
+└── tsconfig.json                   # TypeScript compiler options
 ```
 
-## What Makes This Special?
+## API Overview
 
-### Smart Shopping Cart 🛒
+Base URL:
 
-- Remembers everything you add
-- Keeps track of prices when items are added
-- No surprise price changes at checkout
+```text
+http://localhost:5000/api
+```
 
-### Automatic Discounts 🎁
+### Products
 
-- Every Nth order gets a 10% discount (you can configure how often)
-- System generates unique discount codes
-- Tracks usage to prevent double-dipping
+```text
+GET /api/products
+```
 
-### Smooth Checkout Process 💳
+Returns the available products.
 
-- Automatically calculates totals
-- Handles multiple types of discounts
-- Keeps a clean order history
+### Cart
 
-## Key Features In Detail
+```text
+GET /api/cart?userId=guest-001
+POST /api/cart/add
+```
 
-### Shopping Cart Logic
+`POST /api/cart/add` body:
 
-- `addToCart`: Smart product tracking with price snapshots
-- `getResCart`: Quick cart creation and retrieval
+```json
+{
+  "userId": "guest-001",
+  "productId": "p1",
+  "qty": 1
+}
+```
 
-### Checkout System
+### Checkout
 
-- `checkout`: Complete order processing
-- `generateDiscount`: Creates and manages discount codes
+```text
+POST /api/checkout
+```
 
-### Behind The Scenes
+Body without coupon:
 
-- `updateStats`: Smart analytics tracking
-- `round2`: Precise price calculations
+```json
+{
+  "userId": "guest-001"
+}
+```
 
-## Want To Try It?
+Body with coupon:
 
-Getting started is super easy:
+```json
+{
+  "userId": "guest-001",
+  "discountCode": "SAVE25-ABC123"
+}
+```
 
-1. Install dependencies:
+Checkout validates the coupon before applying the discount. Used, invalid, expired, or wrong-checkout coupons are rejected.
+
+### Admin
+
+```text
+GET /api/admin/stats
+POST /api/admin/discounts/generate
+```
+
+`POST /api/admin/discounts/generate` body:
+
+```json
+{
+  "percentage": 25
+}
+```
+
+The percentage must be a whole number from `1` to `50`.
+
+## Discount Rules
+
+- `NTH_ORDER` is currently `3`.
+- Admin can generate one coupon for an upcoming nth checkout, such as order `3`, `6`, `9`, and so on.
+- Only one active unused coupon can exist for the current upcoming checkout.
+- Coupons are tied to the exact checkout number they were generated for.
+- If the intended nth checkout happens without using the coupon, that coupon becomes expired for later checkouts.
+- Checkout applies a discount only when the user submits a valid coupon code.
+
+## In-Memory Storage
+
+This backend uses in-memory data structures in `src/stores/db.ts`:
+
+```ts
+carts
+orders
+discountCodes
+orderCount
+itemsPurchasedCount
+totalPurchaseAmount
+totalDiscountAmount
+```
+
+There is no database or browser local storage for backend data. Stopping the Node backend process resets all in-memory data.
+
+## Getting Started
+
+Install dependencies:
 
 ```bash
 npm install
 ```
 
-2. Start it up:
+Start in development mode:
+
+```bash
+npm run dev
+```
+
+Build TypeScript:
+
+```bash
+npm run build
+```
+
+Start compiled output:
 
 ```bash
 npm start
 ```
 
-You'll find your server running at [http://localhost:5000](http://localhost:5000)
+The server runs at [http://localhost:5000](http://localhost:5000).
 
-## Why I Built It This Way
+## Scripts
 
-I picked these tools for good reasons:
+```bash
+npm run dev      # Start ts-node-dev watcher
+npm run build    # Compile TypeScript to dist/
+npm start        # Run dist/server.js
+npm test         # Run Jest tests
+```
 
-- **TypeScript**: Catches bugs before they happen
-- **Express**: Fast and easy to work with
-- **Simple Storage**: Perfect for development
-- **Clean Structure**: Easy to maintain and expand
+## Tech Stack
+
+- Node.js
+- Express
+- TypeScript
+- CORS
+- dotenv
+- Jest configured for tests

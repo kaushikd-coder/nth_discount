@@ -1,91 +1,92 @@
 # UniBlox Frontend
 
-Hey there! 👋 Welcome to the frontend of our e-commerce project. I built this using Next.js and TypeScript to create a smooth, user-friendly shopping experience.
+Frontend for the UniBlox discount-code ecommerce demo. It is built with Next.js App Router, TypeScript, React, and Tailwind CSS.
 
-## Project Overview
-
-Here's how everything is organized:
+## Current Folder Structure
 
 ```text
-app/
-├── components/          # Reusable UI components
-│   ├── Loader.tsx      # Loading animations
-│   ├── Navbar.tsx      # Site navigation
-│   └── ProductCard.tsx # Product display
-│
-├── lib/                # Core utilities
-│   ├── api.ts         # Backend communication
-│   └── types.ts       # TypeScript definitions
-│
-└── pages/             # Main app pages
-    ├── admin/         # Admin dashboard
-    ├── cart/          # Shopping cart
-    └── discounts/     # Discount management
+uniblox-fe/
+├── app/
+│   ├── admin/
+│   │   └── page.tsx              # Admin dashboard: stats and issued coupons
+│   ├── cart/
+│   │   └── page.tsx              # Cart, coupon entry, checkout flow
+│   ├── components/
+│   │   ├── Loader.tsx            # Skeleton loading states
+│   │   ├── Navbar.tsx            # Site navigation and cart quantity badge
+│   │   └── ProductCard.tsx       # Product card and add-to-cart action
+│   ├── discounts/
+│   │   └── generate/
+│   │       └── page.tsx          # Admin coupon generation page
+│   ├── lib/
+│   │   ├── api.ts                # Backend API client functions
+│   │   ├── cartEvents.ts         # Shared cart badge update events
+│   │   ├── navigationState.ts    # Refresh-only skeleton loading helper
+│   │   └── types.ts              # Shared TypeScript types
+│   ├── globals.css               # Tailwind import and global theme styles
+│   ├── layout.tsx                # Root layout and fonts
+│   └── page.tsx                  # Home page and product listing
+├── public/                       # Static assets
+├── eslint.config.mjs             # ESLint configuration
+├── next.config.ts                # Next.js configuration
+├── package.json                  # Scripts and dependencies
+├── postcss.config.mjs            # Tailwind/PostCSS configuration
+└── tsconfig.json                 # TypeScript configuration
 ```
 
-## What Makes This Special?
+## Features
 
-### Modern Shopping Experience 🛍️
+- Product listing with add-to-cart actions.
+- Navbar cart badge that updates after cart changes.
+- Cart page with coupon input, checkout, and available coupon chips.
+- Admin dashboard for order count, revenue, discount totals, and coupon history.
+- Admin coupon generation with configurable percentage from `1` to `50`.
+- Copyable unused coupon codes with hover feedback.
+- Skeleton loaders on browser refresh/direct load, while client-side route changes stay fast.
 
-- Clean, intuitive interface
-- Responsive design that works on all devices
-- Real-time price and cart updates
+## Discount Flow
 
-### Smart Admin Tools 🔧
+- The backend determines when the next checkout is an nth order.
+- Admin can generate one coupon for that upcoming nth checkout.
+- Unused coupons are shown in the cart only while they are valid for the current checkout.
+- Clicking a coupon chip copies it and fills the discount input.
+- Checkout validates the entered coupon before applying the discount.
 
-- Easy product management
-- Discount code generation
-- Order tracking and processing
+## Getting Started
 
-### Seamless Integration 🔄
-
-- Works perfectly with our backend
-- Fast API communication
-- Consistent data handling
-
-## Core Features
-
-### Shopping Interface
-
-- Product browsing with dynamic filtering
-- Real-time cart updates
-- Smooth checkout process
-
-### Admin Dashboard
-
-- Product management
-- Order processing
-- Discount code generation
-
-## Try It Out
-
-Getting started is easy:
-
-1. Install dependencies:
+Install dependencies:
 
 ```bash
 npm install
 ```
 
-2. Start the development server:
+Run the development server:
 
 ```bash
 npm run dev
 ```
 
-Visit [http://localhost:3000](http://localhost:3000) to see it in action!
+Open [http://localhost:3000](http://localhost:3000).
 
-## Tech Choices
+The frontend expects the backend API at:
 
-I picked these technologies because:
+```text
+http://localhost:5000/api
+```
 
-- **Next.js**: Perfect for fast, SEO-friendly e-commerce
-- **TypeScript**: Keeps our code reliable
-- **App Router**: Latest Next.js features for better performance
-- **CSS Modules**: Clean, scoped styling
+## Scripts
 
-## Key Components
+```bash
+npm run dev      # Start Next.js development server
+npm run build    # Create production build
+npm run start    # Start production server
+npm run lint     # Run ESLint
+```
 
-- `ProductCard`: Smart product display with dynamic pricing
-- `Navbar`: Responsive navigation with cart status
-- `Loader`: Smooth loading states for better UX
+## Tech Stack
+
+- Next.js 16 App Router
+- React 19
+- TypeScript
+- Tailwind CSS 4
+- ESLint
